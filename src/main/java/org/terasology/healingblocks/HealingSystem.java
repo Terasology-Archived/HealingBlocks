@@ -16,16 +16,17 @@
 
 package org.terasology.healingblocks;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
+import org.terasology.entitySystem.systems.RegisterMode;
+import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.healingblocks.component.HealingBlockComponent;
 import org.terasology.logic.characters.events.OnEnterBlockEvent;
+import org.terasology.logic.health.HealthComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.registry.In;
@@ -33,8 +34,8 @@ import org.terasology.world.BlockEntityRegistry;
 import org.terasology.healingblocks.component.HealingBlockBuffComponent;
 import org.terasology.logic.health.DoHealEvent;
 
+@RegisterSystem(RegisterMode.AUTHORITY)
 public class HealingSystem extends BaseComponentSystem implements UpdateSubscriberSystem {
-    //private static final Logger logger = LoggerFactory.getLogger(HealingSystem.class); //use logger.info(string) to send to console
 
     @In
     private BlockEntityRegistry blockEntityProvider;
@@ -55,31 +56,35 @@ public class HealingSystem extends BaseComponentSystem implements UpdateSubscrib
                 HealingBlockBuffComponent.class,
                 HealthComponent.class)) {
 
-            //pull the healingBlockBuffcomponent for easy access
+
+            //pull the healingBlockBuffComponent for easy access
             HealingBlockBuffComponent healingComponent = entity.getComponent(HealingBlockBuffComponent.class);
 
             //whether this should be in the loop or not is up for debate
             long timeInMs = time.getGameTimeInMs();
 
-            //if it's been more than one second since the last heal
+            //if it's passed nextHealTime
             if (healingComponent.nextHealTime <= timeInMs) {
 
-                //heal for the amount per second, with the source being the healing block
+                //heal for 1, with the source being the healing block
                 entity.send(new DoHealEvent(
-                        healingComponent.healPerSecond,
+                        1,
                         blockEntityProvider.getBlockEntityAt(entity.getComponent(LocationComponent.class).getWorldPosition())));
-            }
 
-            //heal again, a second later (accounts for delta time potentially not being exactly 1s
-            healingComponent.nextHealTime += 1000;
+                //sets next heal time based on the damage per second because damage has to be whole numbered
+                //this is imprecise because it's an int, but more precise because it can deal with deltas that aren't exactly 1
+                healingComponent.nextHealTime = timeInMs + (1000 / (healingComponent.healPerSecond));
+            }
 
             //update the component
             entity.saveComponent(healingComponent);
         }
     }
 
+    //TODO make sure this catches jumping onto a block too
     @ReceiveEvent
     public void onEnterBlock(OnEnterBlockEvent enterBlockEvent, EntityRef entity) {
+
         Vector3f newBlockPos = entity.getComponent(LocationComponent.class).getWorldPosition();
         newBlockPos.y--; //the position of the block under the player (based on CharacterSoundSystem's code)
 
@@ -87,7 +92,7 @@ public class HealingSystem extends BaseComponentSystem implements UpdateSubscrib
 
         HealingBlockComponent newBlockHealingComponent = newBlockEntity.getComponent(HealingBlockComponent.class);
 
-        //if the entity was being healed by a healingblock before moving
+        //if the entity was being healed by a healingBlock before moving
         if (entity.hasComponent(HealingBlockBuffComponent.class )) {
 
             //get rid of that healing component
@@ -95,9 +100,9 @@ public class HealingSystem extends BaseComponentSystem implements UpdateSubscrib
         }
 
         //now if the new block is a healing block
-        if (!newBlockHealingComponent.equals(null)){
+        if (newBlockEntity.hasComponent(HealingBlockComponent.class)){
 
-            //start healing it based on the block's healPerSecond value
+            //start healing it based won the block's healPerSecond value
             entity.addComponent(new HealingBlockBuffComponent(newBlockHealingComponent.healPerSecond));
         }
     }

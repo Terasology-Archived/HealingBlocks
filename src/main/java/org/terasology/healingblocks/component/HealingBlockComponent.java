@@ -17,10 +17,6 @@ package org.terasology.healingblocks.component;
 
 import org.terasology.entitySystem.Component;
 
-/**
- * Created by eric on 12/1/16.
- */
-public final class HealingBlockComponent implements Component{
-    public boolean isHealingBlock = true;
-    public int healPerSecond = 1;
+public final class HealingBlockComponent implements Component {
+    public float healPerSecond = 1;
 }

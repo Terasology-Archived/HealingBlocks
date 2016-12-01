@@ -22,16 +22,14 @@ import org.terasology.network.Replicate;
 
 public final class HealingBlockBuffComponent implements Component{
     @Replicate(FieldReplicateType.SERVER_TO_OWNER)
-    public int healPerSecond;
+    public float healPerSecond;
     public float nextHealTime = 0.0f;
 
     public HealingBlockBuffComponent(){
-        healPerSecond = 1;
+        healPerSecond = 1f;
     }
 
-    public HealingBlockBuffComponent(int amountToHealPerSecond) {
+    public HealingBlockBuffComponent(float amountToHealPerSecond) {
         healPerSecond = amountToHealPerSecond;
     }
 }
-
-

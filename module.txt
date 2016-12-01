@@ -1,9 +1,9 @@
 {
     "id" : "HealingBlocks",
-    "version" : "0.1.0-SNAPSHOT",
+    "version" : "1.0.0",
     "author" : "Eric Banisadr",
     "displayName" : "HealingBlocks",
-    "description" : "",
+    "description" : "A basic module to allow blocks to heal entities with the HealingBlock component",
     "dependencies" : [
                 {
                     "id" : "Core",
