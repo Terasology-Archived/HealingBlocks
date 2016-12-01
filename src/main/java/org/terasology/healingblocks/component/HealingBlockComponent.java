@@ -13,23 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.terasology.healingblocks.component;
 
 import org.terasology.entitySystem.Component;
-import org.terasology.network.FieldReplicateType;
-import org.terasology.network.Replicate;
 
-public class HealingBlockComponent implements Component{
-    @Replicate(FieldReplicateType.SERVER_TO_OWNER);
+/**
+ * Created by eric on 12/1/16.
+ */
+public final class HealingBlockComponent implements Component{
+    public boolean isHealingBlock = true;
     public int healPerSecond = 1;
-
-}
-
-
-public class DamagingBlockComponent implements Component {
-
-    public int timeBetweenDamage = 1000;
-    public int blockDamage = 20;
-    public long nextDamageTime;
 }

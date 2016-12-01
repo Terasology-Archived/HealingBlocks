@@ -1,0 +1,13 @@
+{
+    "id" : "HealingBlocks",
+    "version" : "0.1.0-SNAPSHOT",
+    "author" : "Eric Banisadr",
+    "displayName" : "HealingBlocks",
+    "description" : "",
+    "dependencies" : [
+                {
+                    "id" : "Core",
+                    "minVersion" : "1.0.0"
+                }],
+    "serverSideOnly" : false
+}
