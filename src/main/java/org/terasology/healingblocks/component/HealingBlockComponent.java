@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.terasology.healingblocks.component;
 
 import org.terasology.entitySystem.Component;
