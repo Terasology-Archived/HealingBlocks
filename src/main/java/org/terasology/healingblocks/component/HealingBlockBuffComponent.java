@@ -20,16 +20,20 @@ import org.terasology.entitySystem.Component;
 import org.terasology.network.FieldReplicateType;
 import org.terasology.network.Replicate;
 
-public final class HealingBlockBuffComponent implements Component{
+public final class HealingBlockBuffComponent implements Component {
     @Replicate(FieldReplicateType.SERVER_TO_OWNER)
     public float healPerSecond;
     public float nextHealTime = 0.0f;
 
-    public HealingBlockBuffComponent(){
+    public HealingBlockBuffComponent() {
         healPerSecond = 1f;
     }
 
     public HealingBlockBuffComponent(float amountToHealPerSecond) {
         healPerSecond = amountToHealPerSecond;
+    }
+
+    public void updateHeal(float f) {
+        this.healPerSecond = f;
     }
 }
