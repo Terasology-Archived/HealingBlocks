@@ -24,15 +24,15 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.healingblocks.component.HealingBlockBuffComponent;
 import org.terasology.healingblocks.component.HealingBlockComponent;
-import org.terasology.logic.characters.events.OnEnterBlockEvent;
+import org.terasology.logic.health.DoHealEvent;
 import org.terasology.logic.health.HealthComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector3f;
+import org.terasology.physics.events.MovedEvent;
 import org.terasology.registry.In;
 import org.terasology.world.BlockEntityRegistry;
-import org.terasology.healingblocks.component.HealingBlockBuffComponent;
-import org.terasology.logic.health.DoHealEvent;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class HealingSystem extends BaseComponentSystem implements UpdateSubscriberSystem {
@@ -81,26 +81,35 @@ public class HealingSystem extends BaseComponentSystem implements UpdateSubscrib
         }
     }
 
-    //TODO make sure this catches jumping onto a block too
     @ReceiveEvent
-    public void onEnterBlock(OnEnterBlockEvent enterBlockEvent, EntityRef entity) {
+    public void onMoved(MovedEvent event, EntityRef entity) {
+        if (entity.hasComponent(HealthComponent.class)) {
+            checkEntity(entity);
+        }
+    }
 
+    //checks to see if it's on a healingBlock
+    private void checkEntity(EntityRef entity) {
+
+        //Things that describe the new block
         Vector3f newBlockPos = entity.getComponent(LocationComponent.class).getWorldPosition();
         newBlockPos.y--; //the position of the block under the player (based on CharacterSoundSystem's code)
-
         EntityRef newBlockEntity = blockEntityProvider.getBlockEntityAt(newBlockPos);
-
+        boolean newBlockIsHealing = newBlockEntity.hasComponent(HealingBlockComponent.class);
         HealingBlockComponent newBlockHealingComponent = newBlockEntity.getComponent(HealingBlockComponent.class);
 
         //if the entity was being healed by a healingBlock before moving
         if (entity.hasComponent(HealingBlockBuffComponent.class )) {
 
-            //get rid of that healing component
-            entity.removeComponent(HealingBlockBuffComponent.class);
-        }
-
-        //now if the new block is a healing block
-        if (newBlockEntity.hasComponent(HealingBlockComponent.class)){
+            if (newBlockIsHealing) { //if the new block is a healing block, update the amount in case it's changed
+                HealingBlockBuffComponent entityBuffComponent = entity.getComponent(HealingBlockBuffComponent.class);
+                entityBuffComponent.updateHeal(newBlockHealingComponent.healPerSecond);
+                entity.saveComponent(entityBuffComponent);
+            } else { //get rid of that healing component
+                entity.removeComponent(HealingBlockBuffComponent.class);
+            }
+        //the above updates any entity previously being healed, this fixes those that weren't
+        } else if (newBlockEntity.hasComponent(HealingBlockComponent.class)) {
 
             //start healing it based won the block's healPerSecond value
             entity.addComponent(new HealingBlockBuffComponent(newBlockHealingComponent.healPerSecond));
