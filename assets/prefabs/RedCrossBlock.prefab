@@ -1,5 +1,5 @@
 {
-	"HealingBlock": {
+        "HealingBlock": {
         "healPerSecond" : 10
     }
 }
