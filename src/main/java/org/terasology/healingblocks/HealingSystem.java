@@ -26,7 +26,7 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.healingblocks.component.HealingBlockBuffComponent;
 import org.terasology.healingblocks.component.HealingBlockComponent;
-import org.terasology.logic.health.DoHealEvent;
+import org.terasology.logic.health.event.DoRestoreEvent;
 import org.terasology.logic.health.HealthComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector3f;
@@ -67,7 +67,7 @@ public class HealingSystem extends BaseComponentSystem implements UpdateSubscrib
             if (healingComponent.nextHealTime <= timeInMs) {
 
                 //heal for 1, with the source being the healing block
-                entity.send(new DoHealEvent(
+                entity.send(new DoRestoreEvent(
                         1,
                         blockEntityProvider.getBlockEntityAt(entity.getComponent(LocationComponent.class).getWorldPosition())));
 
